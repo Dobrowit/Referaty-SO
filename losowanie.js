@@ -2,8 +2,14 @@ let topics = [];
 
 // Funkcja do załadowania pliku JSON z tematami
 async function loadTopics() {
-  const response = await fetch('tematy.json');
-  topics = await response.json();
+  try {
+    const response = await fetch('tematy.json');
+    const data = await response.json();
+    topics = Object.values(data.tematy); // Konwersja obiektu na tablicę wartości
+  } catch (error) {
+    console.error("Błąd wczytywania tematów:", error);
+    document.getElementById('result').textContent = "Nie udało się wczytać tematów.";
+  }
 }
 
 // Wywołaj załadowanie tematów przy uruchomieniu strony
@@ -60,7 +66,7 @@ function drawLottery() {
   // Generowanie indeksu tematu na podstawie "seed"
   const seed = generateSeed(name, birthdate, hairColor);
   const topicIndex = seed % topics.length;
-  const selectedTopic = topics[topicIndex].title;
+  const selectedTopic = topics[topicIndex];
 
   document.getElementById('result').textContent = `Wylosowany temat: ${selectedTopic}`;
 }
