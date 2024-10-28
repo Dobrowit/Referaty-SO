@@ -69,4 +69,5 @@ function drawLottery() {
   const selectedTopic = topics[topicIndex];
 
   document.getElementById('result').textContent = `Wylosowany temat: ${selectedTopic}`;
+  console.log(selectedTopic);
 }
