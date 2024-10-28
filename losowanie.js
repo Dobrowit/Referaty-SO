@@ -26,8 +26,9 @@ function generateSeed(name, birthdate, hairColor) {
 
 // Funkcja symulująca podstawową walidację językową
 function validateFields(name, hairColor) {
-  const namePattern = /^[A-Z][a-zA-Z]+$/; // Imię zaczyna się wielką literą i składa się z liter
-  const colorPattern = /^#[0-9A-F]{6}$|^(?:black|brown|blonde|red|grey|white|blue|green)$/i; // RGB, HEX lub typowe kolory
+  const namePattern = /^[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ]+$/; // Imię zaczyna się wielką literą i składa się z liter
+  const colorPattern = /^#[0-9A-F]{6}$|^(?:black|brown|blonde|red|grey|white|blue|green|czarny|czarne|brązowy|brązowe|blond|czerwony|czerwone|szary|szare|siwe|siwy|biały|białe|niebieski|niebieskie|zielony|zielone)$/i;
+ // RGB, HEX lub typowe kolory
 
   let isValid = true;
   let nameError = '';
@@ -86,5 +87,5 @@ function drawLottery() {
   const topicIndex = seed % topics.length;
   const selectedTopic = topics[topicIndex];
 
-  document.getElementById('result').textContent = `Wylosowany temat: ${selectedTopic}`;
+  document.getElementById('result').textContent = `${selectedTopic}`;
 }
