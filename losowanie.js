@@ -1,61 +1,80 @@
 let topics = [];
 
-// Funkcja do załadowania pliku JSON z tematami
 async function loadTopics() {
   try {
     const response = await fetch('tematy.json');
     const data = await response.json();
-    topics = Object.values(data.tematy); // Konwersja obiektu na tablicę wartości
+    topics = Object.values(data.tematy);
   } catch (error) {
     console.error("Błąd wczytywania tematów:", error);
     document.getElementById('result').textContent = "Nie udało się wczytać tematów.";
   }
 }
 
-// Wywołaj załadowanie tematów przy uruchomieniu strony
 loadTopics();
 
-// Funkcja generująca "seed" na podstawie imienia, daty urodzenia i koloru włosów
 function generateSeed(name, birthdate, hairColor) {
   const seedData = name + birthdate + hairColor;
   let hash = 0;
   for (let i = 0; i < seedData.length; i++) {
     const char = seedData.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash |= 0; // Zamień na 32-bitową liczbę całkowitą
+    hash |= 0;
   }
   return Math.abs(hash);
 }
 
-// Funkcja losująca temat
+// Funkcja symulująca podstawową walidację językową
+function validateFields(name, hairColor) {
+  const namePattern = /^[A-Z][a-zA-Z]+$/; // Imię zaczyna się wielką literą i składa się z liter
+  const colorPattern = /^#[0-9A-F]{6}$|^(?:black|brown|blonde|red|grey|white|blue|green)$/i; // RGB, HEX lub typowe kolory
+
+  let isValid = true;
+  let nameError = '';
+  let colorError = '';
+
+  if (!namePattern.test(name)) {
+    nameError = 'Imię powinno zaczynać się wielką literą i składać się tylko z liter.';
+    isValid = false;
+  }
+
+  if (!colorPattern.test(hairColor)) {
+    colorError = 'Kolor włosów powinien być typowym kolorem (np. black, brown) lub w formacie HEX (#FFFFFF).';
+    isValid = false;
+  }
+
+  document.getElementById('nameError').textContent = nameError;
+  document.getElementById('hairColorError').textContent = colorError;
+
+  return isValid;
+}
+
+function isBirthdateValid(birthdate) {
+  const today = new Date();
+  const birthDateObj = new Date(birthdate);
+  const age = today.getFullYear() - birthDateObj.getFullYear();
+  const isFutureDate = birthDateObj > today;
+  
+  // Obliczanie, czy osoba ma 14-120 lat
+  if (isFutureDate || age < 14 || age > 120) {
+    return false;
+  }
+  
+  return true;
+}
+
 function drawLottery() {
   const name = document.getElementById('name').value.trim();
   const birthdate = document.getElementById('birthdate').value;
   const hairColor = document.getElementById('hairColor').value.trim();
 
-  let valid = true;
+  let valid = validateFields(name, hairColor);
 
-  // Reset błędów
-  document.getElementById('nameError').textContent = '';
   document.getElementById('birthdateError').textContent = '';
-  document.getElementById('hairColorError').textContent = '';
 
-  // Walidacja
-  if (!name) {
-    document.getElementById('nameError').textContent = 'Imię jest wymagane.';
-    valid = false;
-  }
-
-  if (!birthdate) {
-    document.getElementById('birthdateError').textContent = 'Data urodzenia jest wymagana.';
-    valid = false;
-  } else if (isNaN(new Date(birthdate).getTime())) {
-    document.getElementById('birthdateError').textContent = 'Wprowadź poprawną datę.';
-    valid = false;
-  }
-
-  if (!hairColor) {
-    document.getElementById('hairColorError').textContent = 'Kolor włosów jest wymagany.';
+  // Walidacja daty urodzenia
+  if (!birthdate || !isBirthdateValid(birthdate)) {
+    document.getElementById('birthdateError').textContent = 'Data urodzenia musi być z przeszłości i wskazywać na odpowiedni wiek.';
     valid = false;
   }
 
@@ -63,11 +82,9 @@ function drawLottery() {
     return;
   }
 
-  // Generowanie indeksu tematu na podstawie "seed"
   const seed = generateSeed(name, birthdate, hairColor);
   const topicIndex = seed % topics.length;
   const selectedTopic = topics[topicIndex];
 
   document.getElementById('result').textContent = `Wylosowany temat: ${selectedTopic}`;
-  console.log(selectedTopic);
 }
