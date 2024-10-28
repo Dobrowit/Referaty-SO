@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System losowania</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f3f4f6;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+      margin-top: -10px;
+    }
+    .result {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+      color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>System Losowania</h2>
+    <form id="lotteryForm">
+      <label for="name">Imię:</label>
+      <input type="text" id="name" name="name" required>
+      <div class="error" id="nameError"></div>
+
+      <label for="birthdate">Data urodzenia:</label>
+      <input type="date" id="birthdate" name="birthdate" required>
+      <div class="error" id="birthdateError"></div>
+
+      <label for="hairColor">Kolor włosów:</label>
+      <input type="text" id="hairColor" name="hairColor" required>
+      <div class="error" id="hairColorError"></div>
+
+      <button type="button" onclick="drawLottery()">Wylosuj wynik</button>
+    </form>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function generateSeed(name, birthdate, hairColor) {
+      const seedData = name + birthdate + hairColor;
+      let hash = 0;
+      for (let i = 0; i < seedData.length; i++) {
+        const char = seedData.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0; // Zamień na 32-bitową liczbę całkowitą
+      }
+      return Math.abs(hash);
+    }
+
+    function drawLottery() {
+      const name = document.getElementById('name').value.trim();
+      const birthdate = document.getElementById('birthdate').value;
+      const hairColor = document.getElementById('hairColor').value.trim();
+
+      let valid = true;
+
+      // Resetujemy błędy
+      document.getElementById('nameError').textContent = '';
+      document.getElementById('birthdateError').textContent = '';
+      document.getElementById('hairColorError').textContent = '';
+
+      // Walidacja pola "Imię"
+      if (!name) {
+        document.getElementById('nameError').textContent = 'Imię jest wymagane.';
+        valid = false;
+      }
+
+      // Walidacja pola "Data urodzenia"
+      if (!birthdate) {
+        document.getElementById('birthdateError').textContent = 'Data urodzenia jest wymagana.';
+        valid = false;
+      } else if (isNaN(new Date(birthdate).getTime())) {
+        document.getElementById('birthdateError').textContent = 'Wprowadź poprawną datę.';
+        valid = false;
+      }
+
+      // Walidacja pola "Kolor włosów"
+      if (!hairColor) {
+        document.getElementById('hairColorError').textContent = 'Kolor włosów jest wymagany.';
+        valid = false;
+      }
+
+      if (!valid) {
+        return;
+      }
+
+      // Generowanie wyniku
+      const seed = generateSeed(name, birthdate, hairColor);
+      const result = (seed % 100) + 1;  // Losowanie liczby od 1 do 100
+      document.getElementById('result').textContent = `Wynik losowania: ${result}`;
+    }
+  </script>
+</body>
+</html>
